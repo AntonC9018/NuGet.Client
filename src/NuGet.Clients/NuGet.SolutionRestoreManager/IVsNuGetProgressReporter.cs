@@ -8,7 +8,6 @@ namespace NuGet.SolutionRestoreManager
 {
     /// <summary>
     /// Provides updates about PackageReference solution restore. Only PackageReference projects are reported.
-    ///  
     /// </summary>
     /// <remarks>Projects that are "up to date" may not appear. Just because a project will be restored, doesn't mean that it will not no-op. </remarks>
     public interface IVsNuGetProgressReporter : IRestoreProgressReporter

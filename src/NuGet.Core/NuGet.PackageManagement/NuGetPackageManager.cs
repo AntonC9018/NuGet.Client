@@ -3580,8 +3580,6 @@ namespace NuGet.PackageManagement
             Common.ILogger log,
             CancellationToken token)
         {
-            var tasks = new List<Task<NuGetVersion>>();
-
             NuGetFramework framework;
             if (!project.TryGetMetadata<NuGetFramework>(NuGetProjectMetadataKeys.TargetFramework, out framework))
             {

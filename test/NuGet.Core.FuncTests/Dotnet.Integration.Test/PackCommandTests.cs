@@ -5720,7 +5720,7 @@ namespace ClassLibrary
             // Arrange
             using (var pathContext = msbuildFixture.CreateSimpleTestPathContext())
             {
-                var stableDependencyName = "Somepackage";
+                var stableDependencyName = "StablePackage";
                 var stableDependencyVersion = "2.0.0";
                 var stableDependencyPackage = new SimpleTestPackageContext(stableDependencyName, stableDependencyVersion);
                 stableDependencyPackage.Files.Clear();
@@ -5728,7 +5728,7 @@ namespace ClassLibrary
 
                 await SimpleTestPackageUtility.CreatePackagesAsync(pathContext.PackageSource, stableDependencyPackage);
 
-                var prereleaseDependencyName = "Anotherpackage";
+                var prereleaseDependencyName = "PreReleasePackageA";
                 var prereleaseDependencyVersion = "6.0.0-preview.3";
                 var prereleaseDependencyPackage = new SimpleTestPackageContext(prereleaseDependencyName, prereleaseDependencyVersion);
                 prereleaseDependencyPackage.Files.Clear();
@@ -5763,7 +5763,7 @@ namespace ClassLibrary
                 Assert.True(File.Exists(nupkgPath), "The output .nupkg is not in the expected place");
                 result.AllOutput.Should().NotContain(stableDependencyName);
                 result.AllOutput.Should().Contain(NuGetLogCode.NU5104.ToString());
-                result.AllOutput.Should().Contain($"A stable release of a package should not have a prerelease dependency. Either modify the version spec of dependency \"{prereleaseDependencyName} [{prereleaseDependencyVersion}, )\" or update the version field in the nuspec.");
+                result.AllOutput.Should().Contain($"A stable release of a package should not have a prerelease dependency for \"{NuGetFramework.Parse(platform)}\". Either modify the version spec of dependency \"{prereleaseDependencyName} [{prereleaseDependencyVersion}, )\" or update the version field in the nuspec.");
             }
         }
 
@@ -5774,7 +5774,7 @@ namespace ClassLibrary
         {
             using (var pathContext = msbuildFixture.CreateSimpleTestPathContext())
             {
-                var stableDependencyName = "Somepackage";
+                var stableDependencyName = "StablePackage";
                 var stableDependencyVersion = "2.0.0";
                 var stableDependencyPackage = new SimpleTestPackageContext(stableDependencyName, stableDependencyVersion);
                 stableDependencyPackage.Files.Clear();
@@ -5782,7 +5782,7 @@ namespace ClassLibrary
 
                 await SimpleTestPackageUtility.CreatePackagesAsync(pathContext.PackageSource, stableDependencyPackage);
 
-                var prereleaseDependencyName = "Anotherpackage";
+                var prereleaseDependencyName = "PreReleasePackageA";
                 var prereleaseDependencyVersion = "6.0.0-preview.3";
                 var prereleaseDependencyPackage = new SimpleTestPackageContext(prereleaseDependencyName, prereleaseDependencyVersion);
                 prereleaseDependencyPackage.Files.Clear();
@@ -5833,11 +5833,15 @@ namespace ClassLibrary
                         dependencyGroups.Count);
 
                     var dependencyPackage = dependencyGroups[0].Packages.ToList();
-                    Assert.Equal(1, dependencyPackage.Count);
-                    //Assert.Equal(dependencyName, dependencyPackage[0].Id);
-                    //Assert.Equal(new VersionRange(new NuGetVersion(dependencyVersion), true, null, true), dependencyPackage[0].VersionRange);
+                    Assert.Equal(2, dependencyPackage.Count);
+                    Assert.Equal(prereleaseDependencyName, dependencyPackage[0].Id);
+                    Assert.Equal(new VersionRange(new NuGetVersion(prereleaseDependencyVersion), true, null, true), dependencyPackage[0].VersionRange);
+                    Assert.Equal(stableDependencyName, dependencyPackage[1].Id);
+                    Assert.Equal(new VersionRange(new NuGetVersion(stableDependencyVersion), true, null, true), dependencyPackage[1].VersionRange);
                     Assert.Equal(new List<string> { "Analyzers", "Build" }, dependencyPackage[0].Exclude);
+                    Assert.Equal(new List<string> { "Analyzers", "Build" }, dependencyPackage[1].Exclude);
                     Assert.Empty(dependencyPackage[0].Include);
+                    Assert.Empty(dependencyPackage[1].Include);
                 }
             }
         }
